@@ -1,7 +1,13 @@
-import {Aspect} from './aspect';
-import * as Registry from './registry';
+import Aspect from './aspect';
+import Group from './group';
+import Scene from './scene';
+import Struct from './struct';
+import Union from './union';
 
 export default {
     Aspect,
-    Registry,
+    Group,
+    Scene,
+    Struct,
+    Union,
 };
