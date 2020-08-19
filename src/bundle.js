@@ -2,40 +2,43 @@ import Aspect from './aspect';
 import Group from './group';
 
 /** This is really a metaclass. Use `of` to feed it a module and make it instantiable. */
-const calledFromOf = Symbol('CalledFromOf');
+const calledFromBundleOf = Symbol('CalledFromOf');
 export default class Bundle extends Group {
     static of(module) {
         return class extends this {
-            constructor(bundleClass, ...params) {
-                super(calledFromOf, bundleClass, module, ...params);
-            }
-        };
-    }
-    static get Sub() {
-        return class extends Group {
-            constructor(outer, name, aspect, ...params) {
-                super(aspect, ...params);
-                this.aspect = aspect;
-                this.innerName = name;
-                this.outer = outer;
-            }
-            constructAspect(child, ...params) {
-                return this.aspect.construct(this, child, ...params);
-            }
-            backlinkAspect(aspect) {
-                throw 'not meaningful';
+            constructor(bundleKey, bundleClass, ...params) {
+                super(calledFromBundleOf, bundleKey, bundleClass, module, ...params);
             }
         };
     }
 
-    constructor(calledFrom, bundleClass, module, ...params) {
-        console.assert(calledFrom == calledFromOf);
-        super(bundleClass, ...params);
+    static get Sub() {
+        return Sub;
+    }
+
+    constructor(callGuard, bundleKey, bundleClass, module, ...params) {
+        console.assert(callGuard == calledFromBundleOf);
+        super(bundleKey, bundleClass, ...params);
         this.subs = {};
         const Sub = this.constructor.Sub;
         for (let [name, clazz] of Object.entries(module)) {
             this.subs[name] = new Sub(this, name, clazz, ...params);
         }
+    }
+
+    config(object) {
+        return this.key && object && object.config && object.config[this.key];
+    }
+
+    constructSubAspect(object, subname, subconfig, ...params) {
+        if (!subconfig) {
+            return undefined;
+        }
+        const sub = this.subs[subname] || this.subs.default;
+        if (!sub) {
+            return undefined;
+        }
+        return sub.constructAspect(object, subconfig, ...params);
     }
 
     subsEntries() {
@@ -72,5 +75,34 @@ export default class Bundle extends Group {
             sub.updateScene(time, delta);
         }
         super.updateScene(time, delta);
+    }
+};
+
+class Sub extends Group {
+    constructor(outer, name, aspect, ...params) {
+        super(name, aspect, ...params);
+        this.outer = outer;
+    }
+    // config(object) {
+    //     const config = this.outer.config(object);
+    //     return config && config[this.key];
+    // }
+    // constructAspect(child, ...params) {
+    //     let config = this.config(child);
+    //     if (!config) {
+    //         return undefined;
+    //     }
+    //     return super.constructAspect(child, config, ...params);
+    // }
+    backlinkAspect() {
+        throw 'Invalid';
+    }
+    // I'm not super meaningful to call directly on algebraic types.
+    add(child, addToScene) {
+        this.outer.add(child);
+        return this;
+    }
+    removeAspect() {
+        throw 'Must be overridden';
     }
 };

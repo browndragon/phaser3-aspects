@@ -3,37 +3,46 @@ import Bundle from './bundle';
 
 export default class Union extends Aspect {
     static of(module) {
-        let b = Bundle.of(module);
-        class Sub extends b.Sub {
-            getAspect(child) {
-                return this.outer.getAspect(child);
-            }
-        };
-        class Group extends b {
-            static get Sub() {
-                return Sub;
-            }
-        };        
+        class Group extends UnionG.of(module) {};
         return class extends this {
-            static construct(group, child) {
-                if (!child) {
-                    return undefined;
-                }
-                for (let [name, sub] of group.subsEntries()) {
-                    let aspect = group.backlinkAspect(sub.constructAspect(child));
-                    if (aspect) {
-                        sub.rawAdd(child, false);
-                        return aspect;
-                    }
-                }
-                return undefined;
-            }
             static get Group() {
                 return Group;
             }
         };
     }
-    constructor() {
-        throw 'Uninstantiable';
+    static construct() {
+        throw 'Overridden in `of`';
+    }
+}
+class Sub extends Bundle.Sub {
+    unlinkAspect(aspect) {
+        this.outer.unlinkAspect(aspect);
+    }
+}
+class UnionG extends Bundle {
+    static get Sub() {
+        return Sub;
+    }
+    constructAspect(child, ...params) {
+        console.assert(child);
+        let config = this.config(child);
+        console.assert(config);
+        let entries = Object.entries(config);
+        console.assert(entries.length == 1);
+        for (let [name, subconfig] of entries) {
+            let subAspect = this.constructSubAspect(child, name, subconfig, ...params);
+            console.assert(subAspect);
+            return subAspect;
+        }
+    }
+    getAspect(child) {
+        return child && child[this[A].key];
+    }
+    unlinkAspect(aspect) {
+        if (!aspect || !aspect.sprite) {
+            return;
+        }
+        aspect.sprite[this.outer.key] = undefined;
+        aspect.destructor();
     }
 }

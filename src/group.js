@@ -1,16 +1,20 @@
 import Phaser from 'phaser';
 
 export default class Group extends Phaser.GameObjects.Group {
-    constructor(aspectClass, ...params) {
+    constructor(key=undefined, aspectClass, ...params) {
         super(...params);
-        console.log('Constructing: ', this.constructor, aspectClass, ...params);
+        this[K] = key;
         this[A] = aspectClass;
-        console.assert(this[A]);
+        console.assert(this[A]);   
+    }
+
+    get key() {
+        return this[K];
     }
 
     // Is override.
     add(child, addToScene) {
-        if (!this.backlinkAspect(this[A].construct(this, child))) {
+        if (!this.backlinkAspect(this.constructAspect(child))) {
             return this;
         }
         return this.rawAdd(child, addToScene);
@@ -24,27 +28,42 @@ export default class Group extends Phaser.GameObjects.Group {
         return super.remove(child, removeFromScene, destroyChild);
     }
 
-    getAspect(child) {
-        return child && child[this[A].key];
-    }
     backlinkAspect(aspect) {
         if (!aspect) {
             return undefined;
         }
         if (!aspect.sprite) {
+            aspect.destructor();
             return undefined;
         }
-        return aspect.sprite[this[A].key] = aspect;
+        if (this.key) {
+            aspect.sprite[this.key] = aspect;
+        }
+        return aspect;
+    }
+    constructAspect(child, ...params) {
+        return child && new this[A](this, child, ...params);
+    }
+    getAspect(child) {
+        if (!this.key) {
+            return undefined;
+        }
+        return child && child[this.key];
     }
     unlinkAspect(aspect) {
         if (!aspect) {
             return;
         }
-        child[this[A].key] = undefined;
+        if (this.key) {
+            child[this.key] = undefined;
+        }
         aspect.destructor();
     }
 
     initScene(data) {
+        if (this.key) {
+            this.scene[this.key] = this;
+        }
         this[A].init(this, data);
     }
     preloadScene() {
@@ -64,3 +83,4 @@ export default class Group extends Phaser.GameObjects.Group {
     }
 }
 const A = Symbol('Aspect');
+const K = Symbol('Key');

@@ -1,56 +1,105 @@
-import Group from './group';
+import Relation from './relation';
+import Phaser from 'phaser';
 
-// Implicitly, a GameObject Aspect.
 export default class Aspect {
-    static get key() {
-        throw 'unimplemented';
-    }
-    static get Group() {
-        return Group;
-    }
-    static construct(group, object, ...params) {
-        return object && new this(group, object, ...params);
-    }
-    // Called on join group (every time). Treat as opaque.
-    constructor(group, object) {
-        this[G] = group;
-        this[O] = object;
+    constructor(
+        // The aspect context for accessing shared objects like scene and group.
+        context,
+        // The aspect's binding -- the specific sprite, target-within-sprite for this aspect,
+        // and config for this target/sprite pair.
+        {
+            sprite,
+            config={},
+        },
+    ) {
+        this[X] = context;
+        this[S] = sprite;
+        this[C] = config;
     }
 
-    // Called on scene stage (assuming registered before).
-    static init(group, data) {
-        const key = this.key;
-        if (key) {
-            group.scene[this.key] = group;            
+    // As struct; explicitly responsible for starting the aspect subsystem.
+    static Root(module) {
+        return class extends this.Struct(submodules) {
+            static get [Relation.T]() {
+                return Relation.struct;
+            }
+            static getConfigRoot(object) {
+                return object.config;
+            }
+            static getTargetRoot(object) {
+                return object;
+            }
         }
     }
+    // Creates a new aspect whose config is a constructed set of its inner aspects.
+    static Struct(module) {
+        return class extends Aspect {
+            static get [Relation.T]() {
+                return Relation.struct;
+            }
+            static get [Relation.C]() {
+                return module;
+            }
+        }
+    }
+    // Creates a new aspect which returns the unique named sub-aspect from its config.
+    static Union(module) {
+        return class extends Aspect {
+            static get [Relation.T]() {
+                return Relation.union;
+            }
+            static get [Relation.C]() {
+                return module;
+            }
+        }
+    }
+
+    // Called during context construction (usually before even init).
+    // Provided so that groups can be physics groups, have additional params, etc.
+    // Callbacks are managed by the context!
+    // Can also return undefined for aspects without groups.
+    static group(context) {
+        return new Phaser.GameObjects.Group(context.scene);
+    }
+
     // Called on scene stage (assuming registered before).
-    static preload(group) {}
+    static init(context, data) {}
     // Called on scene stage (assuming registered before).
-    static create(group, data) {}
+    static preload(context) {}
+    // Called on scene stage (assuming registered before).
+    static create(context, data) {}
     // Called on scene stage (assuming registered before).
     // If this returns truthy, every member of the group will be invoked with that value.
     // Falsy, they will not be invoked.
-    static update(group, time, delta) {
+    static update(context, time, delta) {
         return undefined;
     }
-    // See static update.
+    // See static update; called on each aspect instance.
     update(fromStatic) {
         throw 'unimplemented';
     }
 
-    get group() {
-        return this[G];
+    get context() {
+        return this[X];
     }
     get sprite() {
-        return this[O];
+        return this[S];
+    }
+    get config() {
+        return this[C];
     }
 
+    static get [Relation.T]() {
+        return Relation.leaf;
+    }
     // Called on exit group (every time).
     destructor() {
-        this[O] = undefined;
+        this[X] = undefined;
+        this[S] = undefined;
+        this[C] = undefined;
     }
 }
 
-const G = Symbol('Group');
-const O = Symbol('Object');
+const X = Symbol('Context');
+const S = Symbol('Sprite');
+const P = Symbol('Config');
