@@ -1,9 +1,8 @@
 import Base from './base';
 
 export default class extends Base {
-    static get key() { return 'star'; }
     static get setXY() { return { x:0, y:0, stepX: 32, stepY: 32, }; }
-    static preload(group) {
+    static preload({scene, key}) {
         let data = [
             '.....828.....',
             '....72227....',
@@ -18,6 +17,6 @@ export default class extends Base {
             '.27887.78872.',
             '.787.....787.'
         ];
-        group.scene.textures.generate(this.key, { data, pixelWidth: 4 });
+        scene.textures.generate(key, { data, pixelWidth: 4 });
     }
 }

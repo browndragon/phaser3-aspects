@@ -1,39 +1,28 @@
 import Relation from './relation';
+import Scene from './scene';
+import mappify from './mappify';
+
 import Phaser from 'phaser';
 
 export default class Aspect {
     constructor(
-        // The aspect context for accessing shared objects like scene and group.
-        context,
-        // The aspect's binding -- the specific sprite, target-within-sprite for this aspect,
-        // and config for this target/sprite pair.
-        {
-            sprite,
-            config={},
-        },
+        sprite,
+        config,
+        node
     ) {
-        this[X] = context;
         this[S] = sprite;
         this[C] = config;
+        this[N] = node;
     }
 
-    // As struct; explicitly responsible for starting the aspect subsystem.
-    static Root(module) {
-        return class extends this.Struct(submodules) {
-            static get [Relation.T]() {
-                return Relation.struct;
-            }
-            static getConfigRoot(object) {
-                return object.config;
-            }
-            static getTargetRoot(object) {
-                return object;
-            }
-        }
+    static get Scene() {
+        return Scene;
     }
+
     // Creates a new aspect whose config is a constructed set of its inner aspects.
     static Struct(module) {
-        return class extends Aspect {
+        module = mappify(module);
+        return class extends this {
             static get [Relation.T]() {
                 return Relation.struct;
             }
@@ -44,7 +33,11 @@ export default class Aspect {
     }
     // Creates a new aspect which returns the unique named sub-aspect from its config.
     static Union(module) {
-        return class extends Aspect {
+        module = mappify(module);
+        return class extends this {
+            constructor() {
+                throw 'Uninstantiable';
+            }
             static get [Relation.T]() {
                 return Relation.union;
             }
@@ -54,52 +47,67 @@ export default class Aspect {
         }
     }
 
-    // Called during context construction (usually before even init).
-    // Provided so that groups can be physics groups, have additional params, etc.
-    // Callbacks are managed by the context!
-    // Can also return undefined for aspects without groups.
-    static group(context) {
-        return new Phaser.GameObjects.Group(context.scene);
+    // Called on install to create a phaser group.
+    // This isn't REALLY a group; you shouldn't add/remove from it since it won't forward to
+    // the actual aspects. But it's usable as a collision entity etc if you can find it.
+    static group({scene}) {
+        console.assert(scene);
+        return new Phaser.GameObjects.Group(scene);
     }
 
     // Called on scene stage (assuming registered before).
-    static init(context, data) {}
+    static init(data, node) {}
+
     // Called on scene stage (assuming registered before).
-    static preload(context) {}
+    static preload(node) {}
+
     // Called on scene stage (assuming registered before).
-    static create(context, data) {}
+    // If this returns a group, all created instances will be added to that group.
+    static create(data, node) {}
+
     // Called on scene stage (assuming registered before).
     // If this returns truthy, every member of the group will be invoked with that value.
     // Falsy, they will not be invoked.
-    static update(context, time, delta) {
+    static update(time, delta, node) {
         return undefined;
     }
-    // See static update; called on each aspect instance.
+    // See static update; called on each aspect instance with the update return.
     update(fromStatic) {
         throw 'unimplemented';
     }
 
-    get context() {
-        return this[X];
-    }
     get sprite() {
         return this[S];
     }
     get config() {
         return this[C];
     }
+    get scene() {
+        return this[N].scene;
+    }
+    get siblings() {
+        return this[N].aspects;
+    }
+    get group() {
+        return this[N].group;
+    }
 
     static get [Relation.T]() {
         return Relation.leaf;
+    }        
+    static get [Relation.C]() {
+        return EMPTY_MAP;
     }
+
     // Called on exit group (every time).
     destructor() {
-        this[X] = undefined;
         this[S] = undefined;
         this[C] = undefined;
     }
 }
 
-const X = Symbol('Context');
 const S = Symbol('Sprite');
-const P = Symbol('Config');
+const C = Symbol('Config');
+const N = Symbol('Node');
+
+const EMPTY_MAP = new Map();

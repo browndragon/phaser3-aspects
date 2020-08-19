@@ -1,23 +1,25 @@
 import AI from './ai';
 import Move from './move';
-import Sprite from './sprite';
+import Assets from './assets';
 
 import Phaser from 'phaser';
-import Aspects from 'phaser3-aspects';
+import Aspect from 'phaser3-aspects';
 
-class Scene extends Aspects.Scene {
+class Scene extends Aspect.Scene {
     constructor() {
-        super({
-            key: 'Scene',
-            physics: Move.Physics,
-        });
-        this.register('sprite2', Sprite)
-            .register('ai', AI)
-            .register('move', Move);
+        super(
+            new Map()
+            .set('assets', Assets)
+            .set('ai', AI)
+            .set('move', Move),
+            {
+                key: 'Scene',
+                physics: Move.Physics,
+            }
+        );
     }
     create(data) {
         super.create(data);
-        this.add
     }
 }
 var config = {

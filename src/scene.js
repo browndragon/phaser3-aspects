@@ -1,42 +1,41 @@
+import {Root} from './nodes';
+
 import Phaser from 'phaser';
 
 export default class Scene extends Phaser.Scene {
-    constructor(...params) {
+    constructor(module, ...params) {
         super(...params);
-        this[R] = new Map();
+        this.root = Root.of(this, module);
     }
 
-    register(key, Aspect, ...params) {
-        this[R].set(key, new Aspect.Group(key, Aspect, this, ...params));
-        return this;
-    }
-
-    addSprite(child) {
-        for (let aspectGroup of this[R].values()) {
-            aspectGroup.add(child);
-        }
-        return this;
+    bind(child, config) {
+        return this.root.bind(child, config);
     }
 
     init(data) {
-        for (let aspectGroup of this[R].values()) {
-            aspectGroup.initScene(data);
-        }
+        this.root.visit((node) => {
+            node.aspect.init(data, node);
+        });
     }
     preload() {
-        for (let aspectGroup of this[R].values()) {
-            aspectGroup.preloadScene();
-        }
+        this.root.visit((node) => {
+            node.aspect.preload(node);
+        });
     }
     create(data) {
-        for (let aspectGroup of this[R].values()) {
-            aspectGroup.createScene(data);
-        }
+        this.root.visit((node) => {
+            node.aspect.create(data, node);
+        });
     }
     update(time, delta) {
-        for (let aspectGroup of this[R].values()) {
-            aspectGroup.updateScene(time, delta);
-        }
+        this.root.visit((node) => {
+            let parent = node.aspect.update(time, delta, node);
+            if (!parent) {
+                return;
+            }
+            for (let aspect of node.aspects) {
+                aspect.update(parent);
+            }
+        });
     }
 }
-const R = Symbol('SceneRegistry');

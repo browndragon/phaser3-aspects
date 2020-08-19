@@ -1,9 +1,8 @@
 import Base from './base';
 
 export default class Arrow extends Base {
-    static get key() { return 'arrow'; }
     static get setXY() { return { x:256, y:128, stepX: 64, stepY: 64, }; }
-    static preload(group) {
+    static preload({scene, key}) {
         let data = [
             '..BBBBBB',
             '...BAAAB',
@@ -14,6 +13,6 @@ export default class Arrow extends Base {
             '.BB.....',
             '........',
         ];
-        group.scene.textures.generate(this.key, {data, pixelWidth: 8 });
+        scene.textures.generate(key, {data, pixelWidth: 8 });
     }
 }

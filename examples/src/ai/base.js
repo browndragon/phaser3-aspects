@@ -1,8 +1,8 @@
-import Aspects from 'phaser3-aspects';
+import Aspect from 'phaser3-aspects';
 
-export default class Base extends Aspects.Aspect {
-    constructor(group, object, {speed}) {
-        super(group, object);
-        this.speed = speed;
+export default class Base extends Aspect {
+    get speed() {
+        console.assert(this.config.speed);
+        return this.config.speed;
     }
 }

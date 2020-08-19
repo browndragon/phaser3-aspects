@@ -1,5 +1,5 @@
 import keyboard from './keyboard';
 import random from './random';
-import Aspects from 'phaser3-aspects';
+import Aspect from 'phaser3-aspects';
 
-export default class AI extends Aspects.Union.of({keyboard, random}) {}
+export default class AI extends Aspect.Union({keyboard, random}) {}
