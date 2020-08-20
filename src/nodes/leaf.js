@@ -1,11 +1,4 @@
 import Base from './base';
+import Constructing from './constructing';
 
-export default class Leaf extends Base {
-    constructor(scene, aspectClass, key) {
-        super(scene, aspectClass, key);
-    }
-
-    bind(sprite, config) {
-        return config && this.store(new this.aspect(sprite, config, this));
-    }
-}
+export default class Leaf extends Constructing(Base) {}

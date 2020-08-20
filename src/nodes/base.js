@@ -1,43 +1,33 @@
+import Context from '../context';
+
 export default class Base {
-    constructor(scene, aspectClass, key) {
+    constructor({key=undefined, path=undefined, scene}, aspectClass=undefined) {
         console.assert(scene);
         this.scene = scene;
-        this.aspect = aspectClass;
         this.key = key;
-        this.aspects = new Set();
-        this.group = aspectClass && aspectClass.group(this);
-        // TODO(ensure we have the callbacks overridden);
-    }
+        this.path = path;
+        this.aspect = aspectClass;
 
-    get innerNames() {
-        return [];
-    }
-
-    store(aspect) {
-        this.aspects.add(aspect);
-        if (this.group) {
-            this.group.add(aspect.sprite);
-        }
-        return aspect;
-    }
-    unstore(aspect) {
-        this.aspects.delete(aspect);
-        if (this.group) {
-            this.group.remove(aspect.sprite, false, false);
-        }        
+        // Private user payload. Only available to this aspect.
+        this.data = {};
     }
 
     bind(_sprite, _config) {
         throw 'unimplemented';
     }
     unbind(aspect) {
-        if (!aspect || !aspect.sprite) {
-            return;
-        }
-        this.unstore(aspect);
         aspect.destructor();
     }
     visit(cb) {
         return cb(this);
     }
+
+    get context() {
+        return this[C] || (this[C] = Context(this));
+    }
+    get innerNames() {
+        return [];
+    }
 }
+
+const C = Symbol('Context');

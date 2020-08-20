@@ -1,35 +1,36 @@
 import Base from './base';
+import {child} from './children';
 
 export default class Multi extends Base {
-    constructor(scene, aspectClass, key, innerMap) {
-        super(scene, aspectClass, key);
+    constructor(context, aspectClass, innerMap) {
+        super(context, aspectClass);
         this.innerMap = innerMap;
     }
-    get innerNames() {
-        return this.innerMap.keys();
-    }
-    innerNamed(name) {
-        return this.innerMap.get(name);
-    }
-    bindInner(sprite, name, value) {
+
+    innerBind(sprite, name, value) {
         const inner = this.innerMap.get(name);
         console.assert(inner);
         return inner.bind(sprite, value);
     }
-    dereference(_aspect, _name) {
-        throw 'unimplemented';
-    }
-    unbind(aspect) {
-        for (let [name, inner] of this.innerMap) {
-            inner.unbind(this.dereference(aspect, name));
-            aspect[name] = undefined;
+    innerRemove(name) {
+        const previous = this.innerMap.get(name);
+        if (previous) {
+            previous.visit((node) => {
+                for (let aspect of node.aspects) {
+                    node.unbind(aspect);
+                }
+            });
         }
-        return super.unbind(aspect);
     }
+    innerReplace(name, aspectClass) {
+        this.innerRemove(name);
+        this.innerMap.set(name, child(this.scene, name, aspectClass));
+    }
+
     visit(cb) {
+        super.visit(cb);
         for (let inner of this.innerMap.values()) {
             inner.visit(cb);
         }
-        return super.visit(cb);
     }
 }

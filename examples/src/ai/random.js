@@ -3,7 +3,7 @@ import Base from './base';
 import Phaser from 'phaser';
 
 export default class Random extends Base {
-    static update(time, delta) {
+    static update(context, time, delta) {
         return delta;
     }
     update(delta) {

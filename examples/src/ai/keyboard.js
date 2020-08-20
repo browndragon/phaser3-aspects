@@ -1,21 +1,21 @@
 import Base from './base';
 
 export default class Keyboard extends Base {
-    static create(_data, {scene, group}) {
-        group.cursors = scene.input.keyboard.createCursorKeys();
+    static create({scene, data}) {
+        data.cursors = scene.input.keyboard.createCursorKeys();
     }
-    static update(_time, _delta, {group}) {
+    static update({data}, _time, _delta) {
         let [x, y] = [0, 0];
-        if (group.cursors.up.isDown) {
+        if (data.cursors.up.isDown) {
             y = -1;
         }
-        if (group.cursors.down.isDown) {
+        if (data.cursors.down.isDown) {
             y = +1;
         }
-        if (group.cursors.left.isDown) {
+        if (data.cursors.left.isDown) {
             x = -1;
         }
-        if (group.cursors.right.isDown) {
+        if (data.cursors.right.isDown) {
             x = +1;
         }
         return [x, y];

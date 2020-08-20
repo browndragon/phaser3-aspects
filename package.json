@@ -1,6 +1,6 @@
 {
   "name": "phaser3-aspects",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Shards sprites, scenes, and groups into cross-cutting 'aspects'",
   "main": "src/index.js",
   "scripts": {

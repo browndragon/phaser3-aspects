@@ -17,26 +17,26 @@ export default class Scene extends Phaser.Scene {
 
     init(data) {
         this.root.visit((node) => {
-            node.aspect.init(data, node);
+            node.aspect.init(node.context, data);
         });
     }
     preload() {
         this.root.visit((node) => {
-            node.aspect.preload(node);
+            node.aspect.preload(node.context);
         });
     }
     create(data) {
         this.root.visit((node) => {
-            node.aspect.create(data, node);
+            node.aspect.create(node.context, data);
         });
     }
     update(time, delta) {
         this.root.visit((node) => {
-            let parent = node.aspect.update(time, delta, node);
+            let parent = node.aspect.update(node.context, time, delta);
             if (!parent) {
                 return;
             }
-            for (let aspect of node.aspects) {
+            for (let aspect of node.aspects || []) {
                 aspect.update(parent);
             }
         });

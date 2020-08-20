@@ -15,11 +15,13 @@ export default class Wheel extends Base {
         ];
         scene.textures.generate(key, {data, pixelWidth: 8 });
     }
-    static create(data, {scene, key}) {
+    static makeInstances({scene, key}) {
         let sprite = scene.add.sprite(64, 500, key);
-        scene.root.bind(sprite, {
+        scene.bind(sprite, {
             ai: { keyboard: { speed: 75 } },
+            assets: { wheel: {} },
             move: {},
         });
+        sprite.assets.animateRoll(0);
     }
 }
