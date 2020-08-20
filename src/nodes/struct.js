@@ -12,4 +12,4 @@ export default class Struct extends Multi {
         }
         return this.store(new this.aspect(sprite, subAspects));
     }
-};
+}

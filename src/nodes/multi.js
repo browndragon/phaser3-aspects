@@ -16,7 +16,7 @@ export default class Multi extends Base {
         console.assert(inner);
         return inner.bind(sprite, value);
     }
-    dereference(aspect, name) {
+    dereference(_aspect, _name) {
         throw 'unimplemented';
     }
     unbind(aspect) {
@@ -27,7 +27,7 @@ export default class Multi extends Base {
         return super.unbind(aspect);
     }
     visit(cb) {
-        for (let [name, inner] of this.innerMap) {
+        for (let inner of this.innerMap.values()) {
             inner.visit(cb);
         }
         return super.visit(cb);

@@ -11,6 +11,9 @@ export default class Scene extends Phaser.Scene {
     bind(child, config) {
         return this.root.bind(child, config);
     }
+    unbind(child) {
+        return this.root.unbind(child);
+    }
 
     init(data) {
         this.root.visit((node) => {

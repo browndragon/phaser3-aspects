@@ -23,41 +23,36 @@ export default class Root extends Multi {
     }
     unbind(aspect) {
         for (let [name, inner] of this.innerMap) {
-            inner.unbind(sprite[name]);
+            inner.unbind(this.dereference(aspect, name));
             aspect[name] = undefined;
         }
     }
     visit(cb) {
-        for (let [name, inner] of this.innerMap) {
+        for (let inner of this.innerMap.values()) {
             inner.visit(cb);
         }
     }
-};
+}
 
-const NodeType = {
-    [Relation.leaf]: Leaf,
-    [Relation.struct]: Struct,
-    [Relation.union]: Union,
-};
 function children(scene, module) {
     let retval = new Map();
     for (let [name, Aspect] of mappify(module)) {
         switch(Aspect[Relation.T]) {
-            case Relation.leaf:
-                retval.set(name, new Leaf(scene, Aspect, name));
-                break;
-            case Relation.struct:
-                retval.set(name, 
-                    new Struct(scene, Aspect, name, children(scene, Aspect[Relation.C]))
-                );
-                break;
-            case Relation.union:
-                retval.set(name,
-                    new Union(scene, Aspect, name, children(scene, Aspect[Relation.C]))
-                );
-                break;
-            default:
-                throw 'Unrecognized aspect type';
+        case Relation.leaf:
+            retval.set(name, new Leaf(scene, Aspect, name));
+            break;
+        case Relation.struct:
+            retval.set(name, 
+                new Struct(scene, Aspect, name, children(scene, Aspect[Relation.C]))
+            );
+            break;
+        case Relation.union:
+            retval.set(name,
+                new Union(scene, Aspect, name, children(scene, Aspect[Relation.C]))
+            );
+            break;
+        default:
+            throw 'Unrecognized aspect type';
         }
     }
     return retval;

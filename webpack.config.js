@@ -2,14 +2,13 @@
 
 const path = require('path');
 const webpack = require('webpack');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
     mode: 'development',
     entry: {
-      main: './src/index.js',
-      gameobjects: './src/gameobjects/debugScene.js',
-      lStarter: './src/levels/starter/debugScene.js'
+        main: './src/index.js',
+        gameobjects: './src/gameobjects/debugScene.js',
+        lStarter: './src/levels/starter/debugScene.js'
     },
     module: {
         rules: [
@@ -28,21 +27,12 @@ module.exports = {
     },
 
     plugins: [
-       new webpack.DefinePlugin({
-           WEBGL_RENDERER: true,
-           CANVAS_RENDERER: true
-       }),
-       // new HtmlWebpackPlugin({
-       //     template: './index.html',
-       //     inject: false,
-       // })
-   ],
-   // resolve: {
-   //     alias: {
-   //         '@ux': path.resolve(__dirname, './src/ux/'),
-   //     },
-   // },
-   devServer: {
-       contentBase: path.resolve(__dirname, 'dist'),
-   },
+        new webpack.DefinePlugin({
+            WEBGL_RENDERER: true,
+            CANVAS_RENDERER: true
+        }),
+    ],
+    devServer: {
+        contentBase: path.resolve(__dirname, 'dist'),
+    },
 };

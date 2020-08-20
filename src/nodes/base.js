@@ -1,5 +1,3 @@
-import Aspect from '../aspect';
-
 export default class Base {
     constructor(scene, aspectClass, key) {
         console.assert(scene);
@@ -29,7 +27,7 @@ export default class Base {
         }        
     }
 
-    bind(sprite, config) {
+    bind(_sprite, _config) {
         throw 'unimplemented';
     }
     unbind(aspect) {

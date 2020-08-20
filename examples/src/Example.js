@@ -9,9 +9,9 @@ class Scene extends Aspect.Scene {
     constructor() {
         super(
             new Map()
-            .set('assets', Assets)
-            .set('ai', AI)
-            .set('move', Move),
+                .set('assets', Assets)
+                .set('ai', AI)
+                .set('move', Move),
             {
                 key: 'Scene',
                 physics: Move.Physics,

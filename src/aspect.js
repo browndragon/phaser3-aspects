@@ -29,7 +29,7 @@ export default class Aspect {
             static get [Relation.C]() {
                 return module;
             }
-        }
+        };
     }
     // Creates a new aspect which returns the unique named sub-aspect from its config.
     static Union(module) {
@@ -44,35 +44,36 @@ export default class Aspect {
             static get [Relation.C]() {
                 return module;
             }
-        }
+        };
     }
 
     // Called on install to create a phaser group.
     // This isn't REALLY a group; you shouldn't add/remove from it since it won't forward to
     // the actual aspects. But it's usable as a collision entity etc if you can find it.
-    static group({scene}) {
+    static group(node) {
+        const {scene} = node;
         console.assert(scene);
         return new Phaser.GameObjects.Group(scene);
     }
 
     // Called on scene stage (assuming registered before).
-    static init(data, node) {}
+    static init(_data, _node) {}
 
     // Called on scene stage (assuming registered before).
-    static preload(node) {}
+    static preload(_node) {}
 
     // Called on scene stage (assuming registered before).
     // If this returns a group, all created instances will be added to that group.
-    static create(data, node) {}
+    static create(_data, _node) {}
 
     // Called on scene stage (assuming registered before).
     // If this returns truthy, every member of the group will be invoked with that value.
     // Falsy, they will not be invoked.
-    static update(time, delta, node) {
+    static update(_time, _delta, _node) {
         return undefined;
     }
     // See static update; called on each aspect instance with the update return.
-    update(fromStatic) {
+    update(_fromStatic) {
         throw 'unimplemented';
     }
 

@@ -1,10 +1,10 @@
 import Base from './base';
 
 export default class Keyboard extends Base {
-    static create(data, {scene, group}) {
-        group.cursors = group.scene.input.keyboard.createCursorKeys();
+    static create(_data, {scene, group}) {
+        group.cursors = scene.input.keyboard.createCursorKeys();
     }
-    static update(time, delta, {group}) {
+    static update(_time, _delta, {group}) {
         let [x, y] = [0, 0];
         if (group.cursors.up.isDown) {
             y = -1;

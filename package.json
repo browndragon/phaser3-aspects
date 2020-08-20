@@ -1,16 +1,17 @@
 {
-  "name": "fidough",
+  "name": "phaser3-aspects",
   "version": "0.0.1",
-  "description": "Gameplay (but not assets) for the Fidough game",
+  "description": "Shards sprites, scenes, and groups into cross-cutting 'aspects'",
   "main": "src/index.js",
   "scripts": {
     "test": "jest-webpack",
     "start": "webpack-dev-server -d --open-page main.bundle",
-    "examples": "webpack-dev-server -d --context examples --config examples/webpack.config.js --open"
+    "examples": "webpack-dev-server -d --context examples --config examples/webpack.config.js --open",
+    "lint": "eslint --fix --ext .js,.jsx ."
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/browndragon/fidough.git"
+    "url": "git+https://github.com/browndragon/phaser3-aspects.git"
   },
   "author": "Brown Dragon",
   "license": "MIT",
