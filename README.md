@@ -12,6 +12,24 @@ Examples of aspects you might implement for your game include:
 * many more!
 Consider: your sprite configuration depends on your AI depends on your movement depends on your HUD. To some degree, you will want these dependencies (after all, your AI subsystem will be telling your game components to move), but to many more you will not (after all, your AI should not contain the generic logic to play walking animations!). This library provides that abstraction.
 
+# Installation
+A standard
+```
+npm i phaser3-aspects --save
+```
+will fetch the library; then use within your code with
+```
+import Aspect from 'phaser3-aspects';
+class FooAspect extends Aspect {...};
+class FooScene extends Aspect.Scene({FooAspect}) {
+    create(data) {
+        super.create(data);
+        this.bind(this.add.sprite(0, 0), {FooAspect:{...}});
+    }
+}
+```
+(Read on for much more explanation!)
+
 # Library Components
 ## Aspect
 Aspects hook into the scene and object lifecycle to implement your cross-cutting logic.
