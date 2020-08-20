@@ -18,7 +18,7 @@ export default class Wheel extends Base {
     static create(data, {scene, key}) {
         let sprite = scene.add.sprite(64, 500, key);
         scene.root.bind(sprite, {
-            ai: { keyboard: { speed: 40 } },
+            ai: { keyboard: { speed: 75 } },
             move: {},
         });
     }

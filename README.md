@@ -13,109 +13,62 @@ Examples of aspects you might implement for your game include:
 Consider: your sprite configuration depends on your AI depends on your movement depends on your HUD. To some degree, you will want these dependencies (after all, your AI subsystem will be telling your game components to move), but to many more you will not (after all, your AI should not contain the generic logic to play walking animations!). This library provides that abstraction.
 
 # Library Components
-## `Aspect` (and `Aspect.Repository`)
-TL;DR: Aspects tie `object`s to `registries` with a `key`, so that `object.key` can access the methods on the aspect, and `registry.values()` can iterate over the extant aspects.
+## Aspect
+Aspects hook into the scene and object lifecycle to implement your cross-cutting logic.
 
-The implementation of aspect contained here is completely independent from phaser. You will likely not use `Aspect` directly, but instead prefer `Fragment`; you will however use the methods and classes introduced here.
+Aspects can refer to other aspects using `Aspect.Union(module)` or `Aspect.Struct(module)` (see below for a discussion on `module`). Linking aspects with `Union`, `Struct`, and `Scene` forms a tree, where union aspects construct a single matching instance, and struct aspects construct all child instances and then wrap in a single node (see discussion on bind & config for these). Scene doesn't return an aspect, but otherwise behaves similarly to struct.
 
-`Aspect` is intended for subclassing. Subclass Aspect to add methods & fields to it which are relevant to the system the aspect implements. For instance:
+For example, AI forms a natural union, with a given sprite having exactly one strategy. On the other hand, sprite behaviors (like `Move`, `Attack`, etc) might form a struct of `Actions` (each one associated with different animations, attack damages, etc). The set of all installed components forms a Scene.
+
+## `module`
+In this library, `module` refers to an es6 `import * as Foo`, or else a `{foo: Foo, bar: Bar}` object, or else a `new Map(Object.entries(...))` of either of the previous two forms.
+
+This assumes that the values are classes extending `Aspect` (including `Aspect.Struct(...)` and `.Union(...)`). This is very convenient if you follow the patterns given in the `examples/` directory, where the `ai` and `assets` form natural `Union` types in the `index.js` files.
+
+If your aspects contain cross-dependencies, use of the `Map` form allows you to control the order in which their lifecycle methods will be called; unfortunately, construction will *always* use `Object.entries` traversal order on the input config.
+
+## `Aspect.bind(sprite, config)`
+This instantiates Aspect instances. The same set of modules (and structs & unions) which constructed the scene must be present in the config; only config entries that are present will have Aspect instances constructed (and they will be given only their relevant portion of the full config).
+
+So for instance:
+`Aspect.bind(sprite1, {ai:{random:{speed:10}}})`
+on a scene with
+`Aspect.Scene({
+    ai: Aspect.Union({
+        random: class Random extends Aspect { get speed() { return this.config.speed } },
+    }),
+})`
+will function correctly; afterwards, `sprite1.ai.speed` will indeed be 10.
+If you called the same scene with
+`Aspect.bind(sprite2, {ai:{followPlayer:{}}})`
+you would expect a failure, because you haven't registered a `followPlayer` member of the AI union.
+
+The preferred mechanism for calling this is `scene.bind(sprite, config)` referring to the `Aspect.Scene(...)` instance. This is easily accomplished during the `create` lifecycle method below from any sub-aspect, or might instead be done from your `Aspect.Scene` subclass.
+
+## `Aspect.Scene` & lifecycle
+Aspects are rooted at a `Root` aspect owned & constructed by `Aspect.Scene` (which otherwise functions similarly to a struct).
+
+During the `Scene` constructor, each reachable Aspect will construct a `.group` in the scene (this is your chance to customize the created groups or to omit them entirely).
+
+During each scene callback (`init`, `preload`, and `create`), your Aspect's static methods will be invoked. This happens in a postorder `module` traversal starting at the root.
+
+If you override these methods, you *must* call the same method via `super`, or the aspect subsystem will not execute.
+
+### `Aspect.update` & `aspect.update`
+
+Your static `update` method determines whether your instance update method will be called by returning truthy values. This same value will be passed on to each aspect instance's update method.
+
+In particular, the pseudocode within the update logic is:
 ```
-import Phaser form 'phaser';
-import Aspect from 'phaser3-aspects';
-
-export default class Walk extends Aspect {
-    static get key() {
-        return 'walk';
-    }
-    onAdd() {
-        super.onAdd();
-        // All walkers are physics enabled.
-        this.object.scene.physics.world.enable(this.object);
-    }
-    along(vector) {
-        this.object.play(this.getAnimationName(vector));
-        this.object.body.setVelocity(vector.x, vector.y);
-    }
-    getAnimationName(vector) {
-        // Need to preload animation files and create animations, and provide some mapping based on `this.object` and the direction it's walking.
-        throw 'Implementation of animation loading omitted; strongly consider using Fragment!';
-    }
+let staticValue = this.update(time, delta, {this.aspect /*class*/, this.aspects, this.group, this.key, ...})
+if (!staticValue) {
+    return;
 }
-export default class Random extends Aspect {
-    static get key() {
-        return 'random';
-    }
-    constructor(params) {
-        super(params);
-        this.until = 0;
-    }
-    randomize(time) {
-        if (time < this.until) {
-            return;
-        }
-        this.object.walk.along(Phaser.Math.RandomXY());
-    }
-}
-```
-That seems super manual, but as an end result, your game code looks like:
-```
-import Phaser from 'phaser';
-import {Random, Walk} from './myAspects';
-
-export default class Game extends Phaser.Scene {
-    preload() {
-        this.move = Walk.newRegistry();
-        this.ai = Random.newRegistry();
-    }
-    create() {
-        for (let i = 0; i < 10; ++i) {
-            this.configureSprite(this.add.sprite(
-                Phaser.Math.RND.between(0, 800),
-                Phaser.Math.RND.between(0, 600)
-            ));
-        }
-    }
-    configure(sprite) {
-        this.move.offer(sprite);
-        this.ai.offer(sprite);
-    }
-    update(time, delta) {
-        for (let sprite of this.move) {
-            sprite.random.randomize(time);
-        }
-    }
+for (let aspectInstance of this.aspects) {
+    aspectInstance.update(staticValue);
 }
 ```
+This follows the same module-tree-traversal order as other lifecycle calls.
 
-Again, strongly consider Fragment, which can substantially reduce this boilerplate.
-
-## Shard & Subshards
-A direct subclass of `Aspect` which provides a bundle of related aspect behaviors -- the "shard" refers to the idea that each implementation of Shard provides a part of an aspect, like a shard of a database.
-
-A great example of Shards are the individual strategies for AI. In the previous example, all of the sprites had the same `Walk` and `Random` implementations. However, if some were AI controlled to `Random`walk but one was `Human` controlled (or human seeking, or any other distinct unit intelligence!), and moreover some were `Walk` but some were `Run` or `Bumble` or `Teleport`, we'd clearly need to modify the code. This could get very cumbersome, so Shard provides both a `Shard.Bundle` operation:
-```
-import Phaser from 'phaser';
-import * as AIs from './ai';
-import * as Moves from './move';
-import Shard from './shard';
-import previousGame from './lastExample';
-
-// Gives each object a single `ai` which is the instance whose config matched the name.
-class AI extends Shard.Matching('ai', AIs) {}
-class Move extends Shard.Each('move', Moves) {}
-
-export default class Game extends previousGame {
-    preload() {
-        this.move = Move.newRegistry();
-        this.ai = AI.newRegistry();
-    }
-    update(time, delta) {
-        for (let sprite of this.move) {
-            sprite.ai.decide(time);
-        }
-    }
-
-}
-
-```
-In this version, `Move` encapsulates all possible movement strategies and `AI` all possible move decisions. So all `AI` shards should be written to depend on `this.gameObject.move`, which might provide `this.gameObject.move.walk`, `this.gameObject.move.teleport` or might not, and only provide the methods the user is intended to call
+---
+Happy hacking!
