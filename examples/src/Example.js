@@ -18,9 +18,6 @@ class Scene extends Aspect.Scene {
             }
         );
     }
-    create(data) {
-        super.create(data);
-    }
 }
 var config = {
     type: Phaser.WEBGL,
