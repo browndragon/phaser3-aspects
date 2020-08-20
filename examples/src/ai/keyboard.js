@@ -23,7 +23,6 @@ export default class Keyboard extends Base {
     update([x, y]) {
         x *= this.speed;
         y *= this.speed;
-        console.log('Walking to', x, y);
         this.sprite.move.walk(x, y);
     }
 }
