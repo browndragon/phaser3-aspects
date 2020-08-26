@@ -17,7 +17,7 @@ export default function Grouping(clazz, groupCb=undefined) {
             ensureGroup(this.scene, symbol, groupCb).remove(this.sprite);
             super.destructor();
         }
-    }    
+    };    
 }
 
 function ensureGroup(scene, symbol, groupCb) {

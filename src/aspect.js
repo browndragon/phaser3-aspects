@@ -1,15 +1,13 @@
-import Relation from './relation';
-
-import Phaser from 'phaser';
-
+// Note this is extended in index with additional methods Struct, Union, Resource, Group, and Scene.
 export default class Aspect {
     constructor(
         context,
-        sprite,
+        object,
         config,
     ) {
         this[X] = context;
-        this[S] = sprite;
+        this[O] = object;
+        this[C] = config;
         for (let [key, value] of Object.entries(config)) {
             this[key] = value;
         }
@@ -38,31 +36,26 @@ export default class Aspect {
     get context() {
         return this[X];
     }
+    // Convenience: More than anything else on the context, this is likely to be used.
     get scene() {
         return this[X].scene;
     }
-    get sprite() {
-        return this[S];
+    get object() {
+        return this[O];
     }
-
-    // Algebraic type support.
-    // See index.js' extentions Struct and Union.
-    static get [Relation.T]() {
-        return Relation.leaf;
-    }
-    // See `[Relation.T]` above.
-    static get [Relation.C]() {
-        return EMPTY_MAP;
+    // This is the *object's* config (that is, the parameter to bind). The Aspect.Resource config, if any, is available in `this.context.config`.
+    get config() {
+        return this[C];
     }
 
     // Called on aspect destruction via `unbind`.
     destructor() {
-        this[S] = undefined;
+        this[X] = undefined;
+        this[O] = undefined;
         this[C] = undefined;
     }
 }
 
 const X = Symbol('Context');
-const S = Symbol('Sprite');
-
-const EMPTY_MAP = new Map();
+const O = Symbol('Object');
+const C = Symbol('Config');

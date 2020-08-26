@@ -1,5 +1,5 @@
 import Base from './base';
-import {child} from './children';
+import {node} from './children';
 
 export default class Multi extends Base {
     constructor(context, aspectClass, innerMap) {
@@ -24,7 +24,7 @@ export default class Multi extends Base {
     }
     innerReplace(name, aspectClass) {
         this.innerRemove(name);
-        this.innerMap.set(name, child(this.scene, name, aspectClass));
+        this.innerMap.set(name, node(this /* as context */, name, aspectClass));
     }
 
     visit(cb) {

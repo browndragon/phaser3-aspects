@@ -1,11 +1,23 @@
 import Context from '../context';
 
 export default class Base {
-    constructor({key=undefined, path=undefined, scene}, aspectClass=undefined) {
-        console.assert(scene);
-        this.scene = scene;
+    constructor(
+        {
+            config=undefined,
+            key=undefined,
+            path=undefined,
+            scene
+        },
+        aspectClass=undefined
+    ) {
+        this.config = config;
         this.key = key;
         this.path = path;
+        console.assert(scene);
+        this.scene = scene;
+
+        // The aspect represented by this node. Special nodes include root (has no aspect) and
+        // data (implemented without an aspect, since it just returns).
         this.aspect = aspectClass;
 
         // Private user payload. Only available to this aspect.

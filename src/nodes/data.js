@@ -4,13 +4,13 @@ import Base from './base';
 class Data extends Base {
     constructor() {
         // Lie about everything.
-        super({scene:'unused but not falsey!'}, null);
+        super({scene: 'unused but not falsey!'}, null);
     }
     bind(_sprite, config) {
         return config;
     }
-    unbind(aspect) {}
-    visit(cb) {}
+    unbind(_aspect) {}
+    visit(_cb) {}
 }
 
 export default new Data();

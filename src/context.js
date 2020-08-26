@@ -5,10 +5,13 @@ export default function Context({
     data,
     // The last component of `path` -- like 'basename'.
     key,
-    // The string dotted prefix path to this object (not including key) -- like 'dirname'.
+    // The array prefix path to this object (not including key) -- like 'dirname'.
     path,
+    // The merge-patch config of this node. This is the config at this node with the matching config clauses of all parent nodes merged on top.
+    // For instance, if you have aspect B child of union A child of root, and root's config has {a:{b:{k1:'v'}}}, A's config has {b:{k2:'v'}} and B's config has {k3:'v'}, the context & node at B would get config {k1:v', k2:'v', k3:'v'}.
+    config,
     // The scene this Aspect is registered & operating under.
     scene,
 }) {
-    return {data, key, path, scene};
+    return {data, key, path, config, scene};
 }

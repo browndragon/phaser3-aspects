@@ -1,16 +1,16 @@
 import Aspect from 'phaser3-aspects';
 
 export default class Base extends Aspect {
-    static create(context, ...params) {
-        super.create(context, ...params);
-        this.makeInstances(context);
+    static preload({ scene, key, config:{data, pixelWidth=4} }) {
+        console.assert(data);
+        scene.textures.generate(key, {data, pixelWidth});
     }
-    static makeInstances({scene, key}) {
+    static create({key, scene, config:{setXY}}) {
         console.assert(key);
         for (let sprite of scene.add.group().createMultiple({
             key: key,
             quantity: 8,
-            setXY: this.setXY,
+            setXY: setXY,
             setRotation: { step: 10, },
             setScale: { x: .75, y: .75, stepX: .05, stepY: .05, },
         })) {
@@ -22,7 +22,6 @@ export default class Base extends Aspect {
             sprite.assets.animateRoll(0);
         }
     }
-
     static update(context, time, delta) {
         return delta;
     }
@@ -30,8 +29,10 @@ export default class Base extends Aspect {
         this.sprite.rotation += delta * this._roll;
     }
 
-    static get setXY() { throw 'unimplemented'; }
     animateRoll(speed) {
         this._roll = speed;
+    }
+    get sprite() {
+        return this.object;
     }
 }

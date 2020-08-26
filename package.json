@@ -46,6 +46,7 @@
     "xml-loader": "^1.2.1"
   },
   "dependencies": {
+    "json-merge-patch": "^1.0.0",
     "phaser": "^3.x",
     "phaser-animated-tiles": "file:../phaser-animated-tiles",
     "phaser3-autotile": "^0.x"

@@ -3,37 +3,68 @@ import Leaf from './leaf';
 import Struct from './struct';
 import Union from './union';
 
-import Relation from '../relation';
+import Meta from '../meta';
 import mappify from '../mappify';
 
-export function child(context, Aspect) {
+import jsonmergepatch from 'json-merge-patch';
+
+// See `Root.of` to construct a full working hierarchy.
+export function node(parentContext, keyInParent, Aspect) {
     if (!Aspect) {
         return Data;
     }
-    switch(Aspect[Relation.T]) {
-    case Relation.leaf:
-        return new Leaf(context, Aspect);
-    case Relation.struct:
-        return new Struct(context, Aspect, children(context, Aspect[Relation.C]));
-    case Relation.union:
-        return new Union(context, Aspect, children(context, Aspect[Relation.C]));
-    default:
-        throw 'Unrecognized aspect type';
+    let context = contextualize(parentContext, keyInParent, Aspect);
+    switch(Meta.type(Aspect)) {
+    case undefined: return new Leaf(
+        context,
+        Aspect,
+    );
+    case Meta.struct: return new Struct(
+        context,
+        Aspect, 
+        children(context, Meta.children(Aspect)),
+    );
+    case Meta.union: return new Union(
+        context,
+        Aspect,
+        children(context, Meta.children(Aspect)),
+    );
     }
+    throw 'Unrecognized aspect type';
 }
 
-export default function children(context, module) {
+export default function children(parentContext, module) {
     let retval = new Map();
-    let path = undefined;
-    if (context.key) {
-        path = context.key;
-    }
-    if (context.path) {
-        path = `${context.path}.${path}`;
-    }
     for (let [key, Aspect] of mappify(module)) {
-        let innerContext = Object.assign({}, context, { key, path });
-        retval.set(key, child(innerContext, Aspect));
+        retval.set(key, node(parentContext, key, Aspect));
     }
     return retval;
+}
+
+function contextualize(parentContext, key, innerAspect) {
+    // Note we have our own key as an argument which we'll put in the context below.
+
+    // The path needs the previous key pushed onto it:
+    let path = [...parentContext.path || []];
+    if (parentContext.key) {
+        path.push(parentContext.key);
+    }
+
+    // The config needs merging with the received parent config; in both cases,
+    // "if any".
+    let config = jsonmergepatch.apply({}, Meta.config(innerAspect));
+    let source = parentContext.config;
+    if (source) {
+        source = source[key];
+    }
+    if (source) {
+        config = jsonmergepatch.apply(config, source);
+    }
+
+    return {
+        ...parentContext,
+        config,
+        key,
+        path,
+    };
 }

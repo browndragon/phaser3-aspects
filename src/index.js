@@ -1,6 +1,8 @@
 import Base from './aspect';
-import {Grouping, Struct, Union} from './mixins';
+import Grouping from './grouping';
+import Meta from './meta';
 import Scene from './scene';
+import mappify from './mappify';
 
 export default class Aspect extends Base {
     static get Scene() {
@@ -19,13 +21,20 @@ export default class Aspect extends Base {
     // Creates a new aspect whose config is a constructed set of its inner aspects.
     // Note you can include elements in the module which are empty to pass elements from
     // the config straight through into the struct aspect.
-    static Struct(...params) {
-        return Struct(this, ...params);
+    static Struct(module) {
+        return Meta.extend(this, Meta.struct, mappify(module));
     }
 
     // Creates a new aspect which returns the unique named sub-aspect from its config.
     // Note that you can include elements in the module which are empty to pass elements from the config straight through as the result. However, since you lose type information by doing so, this is NOT recommended!
-    static Union(...params) {
-        return Union(this, ...params);
+    static Union(module) {
+        return Meta.extend(this, Meta.union, mappify(module));
+    }
+
+    // Creates a new aspect which populates default arguments into itself and its children.
+    // The way that this works is that the `data` context field is preseeded with a deep copy of
+    // config, and this same object is used as a baseline onto which the user's config is treated as a patch.
+    static Resource(config) {
+        return Meta.extend(this, undefined, undefined, config);
     }
 }

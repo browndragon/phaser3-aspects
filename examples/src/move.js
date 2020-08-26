@@ -7,6 +7,9 @@ export default class Move extends Aspect.Grouping(physicsScene) {
         scene.physics.add.collider(this.group(scene));
         scene.physics.world.setBoundsCollision();
     }
+    get sprite() {
+        return this.object;
+    }
 
     walk(x, y) {
         this.sprite.body.setVelocity(x, y);

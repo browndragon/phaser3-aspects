@@ -20,5 +20,5 @@ export default function Constructing(clazz) {
             this.aspects.remove(aspect);
             super.unbind(aspect);
         }
-    }
+    };
 }
