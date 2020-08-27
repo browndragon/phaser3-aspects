@@ -1,6 +1,6 @@
 export default {
-    extend(Aspect, type, children, config) {
-        const m = {...Aspect[this.M], type, children, config};
+    extend(Aspect, type, children) {
+        const m = {...Aspect[this.M], type, children};
         if (m.type == this.union) {
             for (let A of m.children.values()) {
                 // Unions can't nest.
@@ -21,10 +21,6 @@ export default {
     // Undefined or a Map name -> Aspect.
     children(Aspect) {
         return Aspect[this.M] && Aspect[this.M].children;
-    },
-    // Undefined or an object (keys matching children will be merged with their configs).
-    config(Aspect) {
-        return Aspect[this.M] && Aspect[this.M].config;
     },
 
     // Symbol for structs.

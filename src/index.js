@@ -30,11 +30,4 @@ export default class Aspect extends Base {
     static Union(module) {
         return Meta.extend(this, Meta.union, mappify(module));
     }
-
-    // Creates a new aspect which populates default arguments into itself and its children.
-    // The way that this works is that the `data` context field is preseeded with a deep copy of
-    // config, and this same object is used as a baseline onto which the user's config is treated as a patch.
-    static Resource(config) {
-        return Meta.extend(this, undefined, undefined, config);
-    }
 }
