@@ -28,9 +28,9 @@ export default class Multi extends Base {
     }
 
     visit(cb) {
-        super.visit(cb);
         for (let inner of this.innerMap.values()) {
             inner.visit(cb);
         }
+        super.visit(cb);
     }
 }

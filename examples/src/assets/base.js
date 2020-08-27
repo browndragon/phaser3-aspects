@@ -1,11 +1,13 @@
 import Aspect from 'phaser3-aspects';
 
 export default class Base extends Aspect {
-    static preload({ scene, key, config:{data, pixelWidth=4} }) {
+    static preload({ scene, key }) {
+        const {data, pixelWidth} = this.config;
         console.assert(data);
         scene.textures.generate(key, {data, pixelWidth});
     }
-    static create({key, scene, config:{setXY}}) {
+    static create({key, scene}) {
+        const {setXY} = this.config;
         console.assert(key);
         for (let sprite of scene.add.group().createMultiple({
             key: key,
@@ -34,5 +36,9 @@ export default class Base extends Aspect {
     }
     get sprite() {
         return this.object;
+    }
+
+    static get config() {
+        throw 'undefined';
     }
 }

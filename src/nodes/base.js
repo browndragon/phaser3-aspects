@@ -19,9 +19,6 @@ export default class Base {
         // The aspect represented by this node. Special nodes include root (has no aspect) and
         // data (implemented without an aspect, since it just returns).
         this.aspect = aspectClass;
-
-        // Private user payload. Only available to this aspect.
-        this.data = {};
     }
 
     bind(_sprite, _config) {

@@ -6,15 +6,13 @@ import Union from './union';
 import Meta from '../meta';
 import mappify from '../mappify';
 
-import jsonmergepatch from 'json-merge-patch';
-
 // See `Root.of` to construct a full working hierarchy.
 export function node(parentContext, keyInParent, Aspect) {
     if (!Aspect) {
         return Data;
     }
-    let context = contextualize(parentContext, keyInParent, Aspect);
-    switch(Meta.type(Aspect)) {
+    let context = contextualize(parentContext, keyInParent);
+    switch (Meta.type(Aspect)) {
     case undefined: return new Leaf(
         context,
         Aspect,
@@ -41,7 +39,7 @@ export default function children(parentContext, module) {
     return retval;
 }
 
-function contextualize(parentContext, key, innerAspect) {
+function contextualize(parentContext, key) {
     // Note we have our own key as an argument which we'll put in the context below.
 
     // The path needs the previous key pushed onto it:
@@ -50,20 +48,8 @@ function contextualize(parentContext, key, innerAspect) {
         path.push(parentContext.key);
     }
 
-    // The config needs merging with the received parent config; in both cases,
-    // "if any".
-    let config = jsonmergepatch.apply({}, Meta.config(innerAspect));
-    let source = parentContext.config;
-    if (source) {
-        source = source[key];
-    }
-    if (source) {
-        config = jsonmergepatch.apply(config, source);
-    }
-
     return {
         ...parentContext,
-        config,
         key,
         path,
     };
