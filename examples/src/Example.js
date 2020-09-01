@@ -1,8 +1,9 @@
+import Phaser from 'phaser';
+
 import AI from './ai';
 import Move from './move';
 import Assets from './assets';
 
-import Phaser from 'phaser';
 import Aspect from 'phaser3-aspects';
 
 class Scene extends Aspect.Scene {

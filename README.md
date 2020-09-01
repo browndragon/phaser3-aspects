@@ -19,6 +19,7 @@ npm i phaser3-aspects --save
 ```
 will fetch the library; then use within your code with
 ```
+import Phaser from 'phaser';
 import Aspect from 'phaser3-aspects';
 class FooAspect extends Aspect {...};
 class FooScene extends Aspect.Scene({FooAspect}) {
@@ -29,6 +30,11 @@ class FooScene extends Aspect.Scene({FooAspect}) {
 }
 ```
 (Read on for much more explanation!)
+
+## A note on `import Phaser from 'phaser'`
+This line must proceed any transitive `import Aspect from 'phaser3-aspects'`, because due to npm architecture & peerDependencies, this library depends on Phaser being defined as a global symbol.
+
+It's safest to import Phaser as the first line in your main binary, any testing files, any example files, etc.
 
 # Library Components
 ## Aspect

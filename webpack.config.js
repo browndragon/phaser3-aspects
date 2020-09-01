@@ -7,8 +7,6 @@ module.exports = {
     mode: 'development',
     entry: {
         main: './src/index.js',
-        gameobjects: './src/gameobjects/debugScene.js',
-        lStarter: './src/levels/starter/debugScene.js'
     },
     module: {
         rules: [
@@ -23,7 +21,10 @@ module.exports = {
     },
     output: {
         path: path.resolve(__dirname, 'dist'),
-        filename: '[name].bundle.js'
+        filename: '[name].bundle.js',
+        library: 'phaser3-aspects',
+        libraryTarget: 'umd',
+        umdNamedDefine: true
     },
 
     plugins: [
@@ -32,7 +33,4 @@ module.exports = {
             CANVAS_RENDERER: true
         }),
     ],
-    devServer: {
-        contentBase: path.resolve(__dirname, 'dist'),
-    },
 };

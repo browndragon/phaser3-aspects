@@ -1,6 +1,7 @@
 import {Root} from './nodes';
 
-import Phaser from 'phaser';
+// Peer dependency, don't import or you'll get a second copy! Use the global instead.
+// import Phaser from 'phaser';
 
 export default class Scene extends Phaser.Scene {
     constructor(module, ...params) {
@@ -16,13 +17,14 @@ export default class Scene extends Phaser.Scene {
     }
 
     init(data) {
+        this[D] = data;
         this.root.visit((node) => {
             node.aspect.init(node.context, data);
         });
     }
     preload() {
         this.root.visit((node) => {
-            node.aspect.preload(node.context);
+            node.aspect.preload(node.context, this[D]);
         });
     }
     create(data) {
@@ -42,3 +44,4 @@ export default class Scene extends Phaser.Scene {
         });
     }
 }
+const D = Symbol('PassDataToPreload');

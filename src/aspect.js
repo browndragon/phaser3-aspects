@@ -17,7 +17,8 @@ export default class Aspect {
     static init(_context, _data) {}
 
     // Called on scene stage (assuming registered before).
-    static preload(_context) {}
+    // The "data" is the same value as was passed to init (since phaser doesn't pass it).
+    static preload(_context, _data) {}
 
     // Called on scene stage (assuming registered before).
     static create(_context, _data) {}
