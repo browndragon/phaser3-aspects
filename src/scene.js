@@ -16,13 +16,14 @@ export default class Scene extends Phaser.Scene {
     }
 
     init(data) {
+        this[D] = data;
         this.root.visit((node) => {
             node.aspect.init(node.context, data);
         });
     }
     preload() {
         this.root.visit((node) => {
-            node.aspect.preload(node.context);
+            node.aspect.preload(node.context, this[D]);
         });
     }
     create(data) {
@@ -42,3 +43,4 @@ export default class Scene extends Phaser.Scene {
         });
     }
 }
+const D = Symbol('PassDataToPreload');

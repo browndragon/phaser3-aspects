@@ -1,11 +1,10 @@
 {
   "name": "phaser3-aspects",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Shards sprites, scenes, and groups into cross-cutting 'aspects'",
   "main": "src/index.js",
   "scripts": {
     "test": "jest-webpack",
-    "start": "webpack-dev-server -d --open-page main.bundle",
     "examples": "webpack-dev-server -d --context examples --config examples/webpack.config.js --open",
     "lint": "eslint --fix --ext .js,.jsx ."
   },
@@ -16,9 +15,9 @@
   "author": "Brown Dragon",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/browndragon/fidough/issues"
+    "url": "https://github.com/browndragon/phaser3-aspects/issues"
   },
-  "homepage": "https://github.com/browndragon/fidough#readme",
+  "homepage": "https://github.com/browndragon/phaser3-aspects#readme",
   "devDependencies": {
     "@babel/core": "^7.10.4",
     "@babel/preset-env": "^7.10.4",
@@ -37,6 +36,7 @@
     "webpack-cli": "~3.0.0",
     "jest-canvas-mock": "^2.2.0",
     "mkdirp": "^1.0.4",
+    "phaser": "^3.x",
     "raw-loader": "^3.1.0",
     "terser-webpack-plugin": "^2.2.1",
     "typescript": "^3.9.6",
@@ -45,11 +45,8 @@
     "webpack-merge": "^4.2.2",
     "xml-loader": "^1.2.1"
   },
-  "dependencies": {
-    "json-merge-patch": "^1.0.0",
-    "phaser": "^3.x",
-    "phaser-animated-tiles": "file:../phaser-animated-tiles",
-    "phaser3-autotile": "^0.x"
+  "peerDependencies": {
+    "phaser": "^3.x"
   },
   "jest": {
     "setupFiles": [
