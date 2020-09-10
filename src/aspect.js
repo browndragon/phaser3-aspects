@@ -8,8 +8,10 @@ export default class Aspect {
         this[X] = context;
         this[O] = object;
         this[C] = config;
-        for (let [key, value] of Object.entries(config)) {
-            this[key] = value;
+        if (typeof(config) == 'object') {
+            for (let [key, value] of Object.entries(config)) {
+                this[key] = value;
+            }            
         }
     }
 

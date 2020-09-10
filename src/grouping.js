@@ -11,10 +11,10 @@ export default function Grouping(clazz, groupCb=undefined) {
         }
         constructor(...params) {
             super(...params);
-            ensureGroup(this.scene, symbol, groupCb).add(this.sprite);
+            ensureGroup(this.scene, symbol, groupCb).add(this.object);
         }
         destructor() {
-            ensureGroup(this.scene, symbol, groupCb).remove(this.sprite);
+            ensureGroup(this.scene, symbol, groupCb).remove(this.object);
             super.destructor();
         }
     };    
